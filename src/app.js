@@ -1,6 +1,6 @@
 import  express from "express";
-import "dotenv/config"
 import connectionInDatabase from "./config/dbConnect.js";
+import routes from "./routes/index.js";
 
 const connectionDatabase = await connectionInDatabase();
 
@@ -14,9 +14,7 @@ connectionDatabase.once("open", ()=> {
 
 const app = express();
 
-app.get("/", (req, res)=> {
-    res.status(200).send("Api with Node.js");
-});
+routes(app);
 
 
 export default app;
