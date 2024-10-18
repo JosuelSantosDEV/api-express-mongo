@@ -12,6 +12,16 @@ const bookSchema = new mongoose.Schema({
     versionKey: false
 });
 
+bookSchema.pre('save', async function (next) {
+    const authorExists = await mongoose.model('Author').exists({ _id: this.author });
+  
+    if (!authorExists) {
+      return next(new Error("Author not found."));
+    }
+    next();
+});
+  
+
 const Book = mongoose.model("Book", bookSchema);
 
 export default Book;
