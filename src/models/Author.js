@@ -10,17 +10,17 @@ const authorSchema = new mongoose.Schema({
     timestamps: true,
     versionKey: false,
     toJSON: { virtuals: true},
-    toObject: {virtuals: true}
+    toObject: {virtuals: true},
 });
 
 authorSchema.virtual("books", {
     ref: "Book",
     localField: "_id",
     foreignField: "author",
-    justOne: false
+    justOne: false,
 });
 
-authorSchema.pre('findOneAndDelete', async function(next) {
+authorSchema.pre("findOneAndDelete", async function(next) {
     const authorId = this.getQuery()._id;
 
     const book = await Book.findOne({ author: authorId });

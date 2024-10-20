@@ -1,83 +1,81 @@
-import author from "../models/Author.js"
+import mongoose from "mongoose";
+import author from "../models/Author.js";
+import NotFoundError from "../errors/NotFoundError.js";
 
 class AuthorController {
-    static async listAuthors (req, res) {
+    static async listAuthors (req, res, next) {
         try {
-            const authors = await author.find({}).select("_id name gender nationality");
+            const authors = await author.find({}).select("_id name gender nationality").exec();
 
             if(!authors) return res.status(404).json({
-                error: `Authors not find`
+                error: "Authors not found",
             });
 
             res.status(200).json(
                 {
                     authors: authors,
-                    quantity: authors.length
-                }
+                    quantity: authors.length,
+                },
             );
         } catch (error) {
-            res.status(500).json({
-                message: `Get list authors failed: ${error}`
-            });
+            next(error)
         }
     };
 
-    static async getAuthorById (req, res) {
+    static async getAuthorById (req, res, next) {
         try {
             const {id} = req.params;
-            const authorFind = await author.findById(id).populate("books", "_id title -author");
+            const authorFind = await author.findById(id).populate("books", "_id title -author").exec();
 
-            if(!authorFind) return res.status(404).json({
-                error: `Author not find`
-            });
-
-            res.status(200).json(authorFind);
+            if(!authorFind)
+                next(new NotFoundError("Author's id not found"));
+            else
+                res.status(200).json(authorFind);
         } catch (error) {
-            res.status(500).json({
-                message: `Get author failed: ${error}`
-            });
+            next(error);
         }
     };
 
-    static async createAuthor (req, res) {
+    static async createAuthor (req, res, next) {
         try {
             const newAuthor = await author.create(req.body);
             res.status(201).json({
                 message: "Author created sucessfull",
-                author: newAuthor
+                author: newAuthor,
             });
         } catch (error) {
-            res.status(500).json({
-                message: `Created author failed: ${error}`
-            });
+            next(error);
         }
     }
 
-    static async updateAuthor (req, res) {
+    static async updateAuthor (req, res, next) {
         try {
             const {id} = req.params;
-            await author.findByIdAndUpdate(id, req.body);
-            res.status(200).json( {
-                message: "Author updated sucessfull",
-            });
+            const updatedAuthor = await author.findByIdAndUpdate(id, req.body, {new : true});
+            if(!updatedAuthor)
+                next(new NotFoundError("Author's id not found"))
+            else
+                res.status(200).json( {
+                    message: "Author updated sucessfull",
+                    updatedAuthor
+                });
         } catch (error) {
-            res.status(500).json({
-                message: `Updated author failed: ${error}`
-            });
+            next(error);
         }
     };
 
-    static async deleteAuthor (req, res) {
+    static async deleteAuthor (req, res, next) {
         try {
             const {id} = req.params;
-            await author.findByIdAndDelete(id);
-            res.status(200).json({
-                message: "Author deleted sucessfull"
-            });
+            const deletedAuthor = await author.findByIdAndDelete(id);
+            if(!deletedAuthor)
+                next(new NotFoundError("Author's id not found"));
+            else
+                res.status(200).json({
+                    message: "Author deleted sucessfull",
+                });
         } catch (error) {
-            res.status(500).json({
-                message: `Deleted author failed: ${error}`
-            });
+            next(error);
         }
     };
 

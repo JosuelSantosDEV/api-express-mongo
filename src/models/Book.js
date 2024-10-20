@@ -6,14 +6,14 @@ const bookSchema = new mongoose.Schema({
     publisher: { type: String, required: true, trim: true },
     price: { type: Number, required: true },
     genre: { type: String, required: true, trim: true },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'Author', required: true }
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "Author", required: true },
 }, {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
 });
 
-bookSchema.pre('save', async function (next) {
-    const authorExists = await mongoose.model('Author').exists({ _id: this.author });
+bookSchema.pre("save", async function (next) {
+    const authorExists = await mongoose.model("Author").exists({ _id: this.author });
   
     if (!authorExists) {
       return next(new Error("Author not found."));
