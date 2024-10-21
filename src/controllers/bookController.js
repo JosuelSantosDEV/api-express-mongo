@@ -1,32 +1,19 @@
-import IncorrectRequestError from "../errors/IncorrectRequestError.js";
+
 import NotFoundError from "../errors/NotFoundError.js";
 import { Book, Author } from "../models/index.js";
 
 class BookController {
     static async listBooks (req, res, next) {
         try {
-            let {limit = 3, page = 1} = req.query;
-        
-            limit = parseInt(limit);
-            page = parseInt(page);
 
-            if(limit > 0 && page > 0){
+            const books = Book.find().select("-createdAt -updatedAt").populate("author", "-_id name");
 
-                const books = await Book.find({}).select("-createdAt -updatedAt").populate("author", "-_id name").skip((page - 1)*limit).limit(limit).exec();
-    
-                if(!books) return res.status(404).json({
-                    error: "Books not find",
-                });
-    
-                res.status(200).json(
-                    {
-                        books: books,
-                        quantity: books.length,
-                    },
-                );
+            if(!books)
+                next(new NotFoundError("There are no books registered"));
+            else{
+                res.result = books;
+                next();
             }
-            else
-                next(new IncorrectRequestError());
 
         } catch (error) {
             next(error);
@@ -62,19 +49,15 @@ class BookController {
                 else search = null;
             };
 
-            if(search && Object.keys(search).length > 0){
+            if(search){
 
-                const booksFound = await Book.find(search).select("-createdAt -updatedAt").populate("author", "-_id name").exec();
+                const booksFound = Book.find(search).select("-createdAt -updatedAt").populate("author", "-_id name");
     
                 if(!booksFound)
-                    next(new NotFoundError("Book's publisher not found"));
+                    next(new NotFoundError("Book's not found"));
                 else
-                    res.status(200).json(
-                        {
-                            books: booksFound,
-                            size: booksFound.length
-                        }
-                    );
+                    res.result = booksFound;
+                    next()
             }
             else
                 res.status(200).json({

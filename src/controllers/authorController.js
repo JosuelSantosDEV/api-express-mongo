@@ -4,18 +4,14 @@ import NotFoundError from "../errors/NotFoundError.js";
 class AuthorController {
     static async listAuthors (req, res, next) {
         try {
-            const authors = await Author.find({}).select("_id name gender nationality").exec();
+            const authors = Author.find({}).select("_id name gender nationality");
 
-            if(!authors) return res.status(404).json({
-                error: "Authors not found",
-            });
-
-            res.status(200).json(
-                {
-                    authors: authors,
-                    quantity: authors.length,
-                },
-            );
+            if(!authors)
+                next(new NotFoundError("There are no authors registered"));
+            else {
+                res.result = authors;
+                next();
+            }
         } catch (error) {
             next(error)
         }
