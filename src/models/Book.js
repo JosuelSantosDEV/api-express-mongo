@@ -22,6 +22,6 @@ bookSchema.pre("save", async function (next) {
 });
   
 
-const Book = mongoose.model("Book", bookSchema);
+const ModelBook = mongoose.model("Book", bookSchema);
 
-export default Book;
+export default ModelBook;

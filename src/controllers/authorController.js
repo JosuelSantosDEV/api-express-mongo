@@ -1,11 +1,10 @@
-import mongoose from "mongoose";
-import author from "../models/Author.js";
+import {Author} from "../models/index.js";
 import NotFoundError from "../errors/NotFoundError.js";
 
 class AuthorController {
     static async listAuthors (req, res, next) {
         try {
-            const authors = await author.find({}).select("_id name gender nationality").exec();
+            const authors = await Author.find({}).select("_id name gender nationality").exec();
 
             if(!authors) return res.status(404).json({
                 error: "Authors not found",
@@ -25,7 +24,7 @@ class AuthorController {
     static async getAuthorById (req, res, next) {
         try {
             const {id} = req.params;
-            const authorFind = await author.findById(id).populate("books", "_id title -author").exec();
+            const authorFind = await Author.findById(id).populate("books", "_id title -author").exec();
 
             if(!authorFind)
                 next(new NotFoundError("Author's id not found"));
@@ -38,7 +37,7 @@ class AuthorController {
 
     static async createAuthor (req, res, next) {
         try {
-            const newAuthor = await author.create(req.body);
+            const newAuthor = await Author.create(req.body);
             res.status(201).json({
                 message: "Author created sucessfull",
                 author: newAuthor,
@@ -51,7 +50,7 @@ class AuthorController {
     static async updateAuthor (req, res, next) {
         try {
             const {id} = req.params;
-            const updatedAuthor = await author.findByIdAndUpdate(id, req.body, {new : true});
+            const updatedAuthor = await Author.findByIdAndUpdate(id, req.body, {new : true});
             if(!updatedAuthor)
                 next(new NotFoundError("Author's id not found"))
             else
@@ -67,7 +66,7 @@ class AuthorController {
     static async deleteAuthor (req, res, next) {
         try {
             const {id} = req.params;
-            const deletedAuthor = await author.findByIdAndDelete(id);
+            const deletedAuthor = await Author.findByIdAndDelete(id);
             if(!deletedAuthor)
                 next(new NotFoundError("Author's id not found"));
             else

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Book from "./Book.js";
+import {Book} from "./index.js";
 
 const authorSchema = new mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId},
@@ -33,6 +33,6 @@ authorSchema.pre("findOneAndDelete", async function(next) {
     }
 });
 
-const Author = mongoose.model("Author", authorSchema);
+const ModelAuthor = mongoose.model("Author", authorSchema);
 
-export default Author;
+export default ModelAuthor;
