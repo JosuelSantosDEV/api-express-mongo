@@ -1,7 +1,6 @@
 import  express from "express";
 import connectionInDatabase from "./config/dbConnect.js";
 import routes from "./routes/index.js";
-import mongoose from "mongoose";
 import errorManipulate from "./middlewares/errorManipulate.js";
 import manipulate404Error from "./middlewares/manipulate404Error.js";
 

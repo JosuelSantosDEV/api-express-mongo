@@ -1,22 +1,33 @@
+import IncorrectRequestError from "../errors/IncorrectRequestError.js";
 import NotFoundError from "../errors/NotFoundError.js";
 import { Book, Author } from "../models/index.js";
 
 class BookController {
     static async listBooks (req, res, next) {
         try {
-            const {} = req.query;
-            const books = await Book.find({}).select("-createdAt -updatedAt").populate("author", "-_id name").exec();
+            let {limit = 3, page = 1} = req.query;
+        
+            limit = parseInt(limit);
+            page = parseInt(page);
 
-            if(!books) return res.status(404).json({
-                error: "Books not find",
-            });
+            if(limit > 0 && page > 0){
 
-            res.status(200).json(
-                {
-                    books: books,
-                    quantity: books.length,
-                },
-            );
+                const books = await Book.find({}).select("-createdAt -updatedAt").populate("author", "-_id name").skip((page - 1)*limit).limit(limit).exec();
+    
+                if(!books) return res.status(404).json({
+                    error: "Books not find",
+                });
+    
+                res.status(200).json(
+                    {
+                        books: books,
+                        quantity: books.length,
+                    },
+                );
+            }
+            else
+                next(new IncorrectRequestError());
+
         } catch (error) {
             next(error);
         }

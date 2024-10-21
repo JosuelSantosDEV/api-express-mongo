@@ -1,7 +1,7 @@
 import IncorrectRequestError from "./IncorrectRequestError.js";
 
 
-class ValidateError extends IncorrectRequestError {
+class ValidationError extends IncorrectRequestError {
     constructor (error) {
         const errorMessage = Object.values(error.errors).map(err => err.message).join(" - ");
         super(`Data validation error: ${errorMessage}`);
@@ -9,4 +9,4 @@ class ValidateError extends IncorrectRequestError {
 
 };
 
-export default ValidateError;
+export default ValidationError;
